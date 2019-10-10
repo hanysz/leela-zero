@@ -63,6 +63,7 @@ unsigned int cfg_num_threads;
 unsigned int cfg_batch_size;
 int cfg_max_playouts;
 int cfg_max_visits;
+int cfg_min_visits;
 size_t cfg_max_memory;
 size_t cfg_max_tree_size;
 int cfg_max_cache_ratio_percent;
@@ -326,6 +327,7 @@ void GTP::setup_default_parameters() {
     cfg_max_playouts = UCTSearch::UNLIMITED_PLAYOUTS;
     cfg_max_visits = UCTSearch::UNLIMITED_PLAYOUTS;
     // This will be overwriiten in initialize() after network size is known.
+    cfg_min_visits = 10; // To do: replace with 0 and set it properly in Leela.cpp
     cfg_max_tree_size = UCTSearch::DEFAULT_MAX_MEMORY;
     cfg_max_cache_ratio_percent = 10;
     cfg_timemanage = TimeManagement::AUTO;
