@@ -143,6 +143,8 @@ static void parse_commandline(int argc, char *argv[]) {
                        "Requires --noponder.")
         ("visits,v", po::value<int>(),
                      "Weaken engine by limiting the number of visits.")
+        ("minvisits", po::value<int>(),
+                     "Broaden search by forcing each legal move to receive at least minvisits playouts.\nIntended for use in analysis only, not for game play or training.")
         ("lagbuffer,b", po::value<int>()->default_value(cfg_lagbuffer_cs),
                         "Safety margin for time usage in centiseconds.")
         ("resignpct,r", po::value<int>()->default_value(cfg_resignpct),
@@ -406,6 +408,10 @@ static void parse_commandline(int argc, char *argv[]) {
         if (cfg_max_visits == 0) {
             cfg_max_visits = UCTSearch::UNLIMITED_PLAYOUTS;
         }
+    }
+
+    if (vm.count("minvisits")) {
+        cfg_min_visits = vm["minvisits"].as<int>();
     }
 
     if (vm.count("resignpct")) {

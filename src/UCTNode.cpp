@@ -320,7 +320,7 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
 
     auto best = static_cast<UCTNodePointer*>(nullptr);
     auto best_value = std::numeric_limits<double>::lowest();
-    
+
     auto loneliest = static_cast<UCTNodePointer*>(nullptr);
     auto loneliest_visits = cfg_min_visits;
 
@@ -348,15 +348,18 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
             best = &child;
         }
 
-        if (is_root && winrate >=0 && child.get_visits() < loneliest_visits) {
-            loneliest_visits = child.get_visits();
-            loneliest = &child;
-        }
+	// Note that if cfg_min_visits hasn't been changed from zero,
+	// then "child.get_visits() < loneliest_visits" is always false,
+	// so "loneliest" will never be set to a non-null value.
+	if (is_root && winrate >=0 && child.get_visits() < loneliest_visits) {
+	    loneliest_visits = child.get_visits();
+	    loneliest = &child;
+	}
     }
 
     if (loneliest != nullptr) {
-        best = loneliest;
-    }
+	best = loneliest;
+    } 
 
     assert(best != nullptr);
     best->inflate();
