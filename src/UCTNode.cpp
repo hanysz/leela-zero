@@ -351,7 +351,7 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
 	// Note that if cfg_min_visits hasn't been changed from zero,
 	// then "child.get_visits() < loneliest_visits" is always false,
 	// so "loneliest" will never be set to a non-null value.
-	if (is_root && winrate >=0 && child.get_visits() < loneliest_visits) {
+	if (is_root && winrate >-1 && child.get_visits() < loneliest_visits) {
 	    loneliest_visits = child.get_visits();
 	    loneliest = &child;
 	}
