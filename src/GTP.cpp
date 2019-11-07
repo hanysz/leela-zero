@@ -64,6 +64,10 @@ unsigned int cfg_batch_size;
 int cfg_max_playouts;
 int cfg_max_visits;
 int cfg_min_visits;
+bool cfg_tracing;
+bool cfg_long_tracing;
+std::string cfg_tracefilename;
+std::ofstream tracefile;
 size_t cfg_max_memory;
 size_t cfg_max_tree_size;
 int cfg_max_cache_ratio_percent;
@@ -328,6 +332,8 @@ void GTP::setup_default_parameters() {
     cfg_max_visits = UCTSearch::UNLIMITED_PLAYOUTS;
     // This will be overwriiten in initialize() after network size is known.
     cfg_min_visits = 0;
+    cfg_tracing = false;
+    cfg_long_tracing = false;
     cfg_max_tree_size = UCTSearch::DEFAULT_MAX_MEMORY;
     cfg_max_cache_ratio_percent = 10;
     cfg_timemanage = TimeManagement::AUTO;
@@ -466,7 +472,9 @@ void GTP::execute(GameState & game, const std::string& xinput) {
     std::string input;
     static auto search = std::make_unique<UCTSearch>(game, *s_network);
 
-    bool transform_lowercase = true;
+    bool transform_lowercase = false;
+    // Changed from true: if we lowercase everything then it becomes impossible to
+    // set filenames using lz-setoption
 
     // Required on Unixy systems
     if (xinput.find("loadsgf") != std::string::npos) {
@@ -1357,6 +1365,16 @@ void GTP::execute_setoption(UCTSearch & search,
         valuestream >> visits;
         cfg_min_visits = visits;
         gtp_printf(id, "");
+    } else if (name == "tracefile") {
+        std::istringstream valuestream(value);
+	std::string tracefilename;
+        valuestream >> tracefilename;
+	cfg_tracefilename.assign(tracefilename);
+	cfg_tracing = true;
+	gtp_printf(id, "");
+    } else if (name == "longtrace") {
+        cfg_long_tracing = true;
+	gtp_printf(id, "");
     } else if (name == "playouts") {
         std::istringstream valuestream(value);
         int playouts;

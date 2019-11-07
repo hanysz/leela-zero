@@ -259,6 +259,7 @@ SearchResult UCTSearch::play_simulation(GameState & currstate,
         if (move != FastBoard::PASS && currstate.superko()) {
             next->invalidate();
         } else {
+	    tracefile << m_rootstate.move_to_text(move) << " ";
             result = play_simulation(currstate, next);
         }
     }
@@ -776,10 +777,19 @@ int UCTSearch::think(int color, passflag_t passflag) {
     auto keeprunning = true;
     auto last_update = 0;
     auto last_output = 0;
+
+    if (cfg_tracing) {
+	//myprintf("Tracing to %s\n", cfg_tracefilename);
+	// not sure why myprint mangles the string...
+	myprintf("Tracing to ");
+	std::cout << cfg_tracefilename << "\n";
+        tracefile.open(cfg_tracefilename, std::ios::app);
+    }
     do {
         auto currstate = std::make_unique<GameState>(m_rootstate);
 
         auto result = play_simulation(*currstate, m_root.get());
+	tracefile << "\n";
         if (result.valid()) {
             increment_playouts();
         }
@@ -803,6 +813,12 @@ int UCTSearch::think(int color, passflag_t passflag) {
         keeprunning &= !stop_thinking(elapsed_centis, time_for_move);
         keeprunning &= have_alternate_moves(elapsed_centis, time_for_move);
     } while (keeprunning);
+
+    if (cfg_tracing) {
+        tracefile.close();
+	myprintf("Finished tracing\n");
+	cfg_tracing = false;
+    }
 
     // Make sure to post at least once.
     if (cfg_analyze_tags.interval_centis() && last_output == 0) {
