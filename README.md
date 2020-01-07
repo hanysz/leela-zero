@@ -1,3 +1,19 @@
+Forked so I can make some customisations and play with the search algorithm:
+
+* "minvisits" mode: visit every legal move a minimum number of times before going to the normal monte carlo tree search
+* tracing mode: output a CSV file with stats for each visit
+
+Access these modes via gtp commands.  For example:
+
+* lz-setoption name minvisits value 10
+* lz-setoption name tracefile value myoutput.csv
+
+For tracing, I suggest you stick with small numbers of playouts, otherwise the output CSVs can get massive.
+
+Use the script tracefile_to_sgf.py to convert CSV output to SGF.
+
+---
+
 [![Linux Build Status](https://travis-ci.org/leela-zero/leela-zero.svg?branch=next)](https://travis-ci.org/leela-zero/leela-zero)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/dcvp31x1e0yavrtf/branch/next?svg=true)](https://ci.appveyor.com/project/gcp/leela-zero-8arv1/branch/next)
 
