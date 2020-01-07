@@ -268,7 +268,8 @@ SearchResult UCTSearch::play_simulation(GameState & currstate,
     }
     node->virtual_loss_undo();
     if (cfg_tracing) {
-      tracefile << playoutnumber << ",update,";
+      playoutdepth--;
+      tracefile << playoutnumber << "," << playoutdepth << ",update,";
       tracefile << currstate.move_to_text(node->get_move()) << ",";
       tracefile << node->get_visits() << ",";
       tracefile << node->get_eval_lcb(color) << ",";
@@ -791,9 +792,14 @@ int UCTSearch::think(int color, passflag_t passflag) {
 	std::cout << cfg_tracefilename << "\n";
         tracefile.open(cfg_tracefilename, std::ios::app);
 	playoutnumber = 1;
-	tracefile << "Playout,operation,move,visits,lcb,";
+        playoutdepth = 1;
+	tracefile << "playout,depth,operation,move,visits,lcb,";
         tracefile << "value,fpu_eval,winrate,puct,policy,";
         tracefile << "move2,visits2,value2,winrate2,puct2,policy2\n";
+        // Output stats for root node before search starts
+        tracefile << "1,0,initialise,pass,";
+        tracefile << m_root->get_visits() << ",,";
+        tracefile << m_root->get_eval(color) << ",,,,,,,,,,,\n";
     }
     do {
         auto currstate = std::make_unique<GameState>(m_rootstate);
@@ -801,6 +807,7 @@ int UCTSearch::think(int color, passflag_t passflag) {
         auto result = play_simulation(*currstate, m_root.get());
         if (cfg_tracing) {
           playoutnumber++;
+          playoutdepth = 1;
         }
         if (result.valid()) {
             increment_playouts();

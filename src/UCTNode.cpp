@@ -384,7 +384,7 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root, GameState & currstat
     best->inflate();
 
     if (cfg_tracing) {
-      tracefile << playoutnumber << ",explore,";
+      tracefile << playoutnumber << "," << playoutdepth << ",explore,";
       tracefile << currstate.move_to_text(best->get_move()) << ",";
       tracefile << best->get_visits() << ",,"; // omit lcb when exploring, it's not used
       tracefile << best_value << "," << fpu_eval << "," << best_winrate << ",";
@@ -399,6 +399,7 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root, GameState & currstat
       } else {
         tracefile << ",,,,,,\n";
       }
+      playoutdepth++;
     }
 
     return best->get();
