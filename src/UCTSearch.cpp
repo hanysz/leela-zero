@@ -799,7 +799,7 @@ int UCTSearch::think(int color, passflag_t passflag) {
         // Output stats for root node before search starts
         tracefile << "1,0,initialise,pass,";
         tracefile << m_root->get_visits() << ",,";
-        tracefile << m_root->get_eval(color) << ",,,,,,,,,,,\n";
+        tracefile << m_root->get_eval(color) << ",,,,,,,,,,\n";
     }
     do {
         auto currstate = std::make_unique<GameState>(m_rootstate);

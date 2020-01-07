@@ -397,7 +397,7 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root, GameState & currstat
         tracefile << second_best_puct << ",";
         tracefile << second_best->get_policy() << "\n";
       } else {
-        tracefile << ",,,,,,\n";
+        tracefile << ",,,,,\n";
       }
       playoutdepth++;
     }
