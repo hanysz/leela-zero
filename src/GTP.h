@@ -90,6 +90,7 @@ extern bool cfg_tracing; // if true, write one line per playout to cfg_tracefile
 extern bool cfg_long_tracing; // if true, write extra tracing output
 extern std::string cfg_tracefilename;
 extern std::ofstream tracefile;
+extern int playoutnumber;
 extern size_t cfg_max_memory;
 extern size_t cfg_max_tree_size;
 extern int cfg_max_cache_ratio_percent;

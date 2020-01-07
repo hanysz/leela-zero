@@ -252,14 +252,13 @@ SearchResult UCTSearch::play_simulation(GameState & currstate,
     }
 
     if (node->has_children() && !result.valid()) {
-        auto next = node->uct_select_child(color, node == m_root.get());
+        auto next = node->uct_select_child(color, node == m_root.get(), currstate);
         auto move = next->get_move();
 
         currstate.play_move(move);
         if (move != FastBoard::PASS && currstate.superko()) {
             next->invalidate();
         } else {
-	    tracefile << m_rootstate.move_to_text(move) << " ";
             result = play_simulation(currstate, next);
         }
     }
@@ -268,6 +267,13 @@ SearchResult UCTSearch::play_simulation(GameState & currstate,
         node->update(result.eval());
     }
     node->virtual_loss_undo();
+    if (cfg_tracing) {
+      tracefile << playoutnumber << ",update,";
+      tracefile << currstate.move_to_text(node->get_move()) << ",";
+      tracefile << node->get_visits() << ",";
+      tracefile << node->get_eval_lcb(color) << ",";
+      tracefile << node->get_eval(color) << ",,,,,,,,,,\n";
+    }
 
     return result;
 }
@@ -784,12 +790,18 @@ int UCTSearch::think(int color, passflag_t passflag) {
 	myprintf("Tracing to ");
 	std::cout << cfg_tracefilename << "\n";
         tracefile.open(cfg_tracefilename, std::ios::app);
+	playoutnumber = 1;
+	tracefile << "Playout,operation,move,visits,lcb,";
+        tracefile << "value,fpu_eval,winrate,puct,policy,";
+        tracefile << "move2,visits2,value2,winrate2,puct2,policy2\n";
     }
     do {
         auto currstate = std::make_unique<GameState>(m_rootstate);
 
         auto result = play_simulation(*currstate, m_root.get());
-	tracefile << "\n";
+        if (cfg_tracing) {
+          playoutnumber++;
+        }
         if (result.valid()) {
             increment_playouts();
         }

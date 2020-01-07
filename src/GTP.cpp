@@ -68,6 +68,7 @@ bool cfg_tracing;
 bool cfg_long_tracing;
 std::string cfg_tracefilename;
 std::ofstream tracefile;
+int playoutnumber;
 size_t cfg_max_memory;
 size_t cfg_max_tree_size;
 int cfg_max_cache_ratio_percent;

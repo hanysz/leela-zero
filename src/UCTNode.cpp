@@ -297,7 +297,9 @@ void UCTNode::accumulate_eval(float eval) {
     atomic_add(m_blackevals, double(eval));
 }
 
-UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
+UCTNode* UCTNode::uct_select_child(int color, bool is_root, GameState & currstate) {
+  // pass the currstate purely so that we can call FastBoard::move_to_text
+  // so as to output tracing information
     wait_expanded();
 
     // Count parentvisits manually to avoid issues with transpositions.
@@ -320,6 +322,14 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
 
     auto best = static_cast<UCTNodePointer*>(nullptr);
     auto best_value = std::numeric_limits<double>::lowest();
+    auto best_winrate = 0.0f; // this and the next two added for tracing
+    auto best_puct = 0.0f;
+
+    // keep track of second best option for tracing purposes:
+    auto second_best = static_cast<UCTNodePointer*>(nullptr);
+    auto second_best_value = std::numeric_limits<double>::lowest();
+    auto second_best_winrate = 0.0f;
+    auto second_best_puct = 0.0f;
 
     auto loneliest = static_cast<UCTNodePointer*>(nullptr);
     auto loneliest_visits = cfg_min_visits;
@@ -344,8 +354,17 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
         assert(value > std::numeric_limits<double>::lowest());
 
         if (value > best_value) {
+            second_best_value = best_value;
+            second_best = best;
             best_value = value;
+            best_winrate = winrate;
+            best_puct = puct;
             best = &child;
+        } else if (value > second_best_value) {
+           second_best_value = value;
+           second_best_winrate = winrate;
+           second_best_puct = puct;
+           second_best = &child;
         }
 
 	// Note that if cfg_min_visits hasn't been changed from zero,
@@ -363,6 +382,25 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root) {
 
     assert(best != nullptr);
     best->inflate();
+
+    if (cfg_tracing) {
+      tracefile << playoutnumber << ",explore,";
+      tracefile << currstate.move_to_text(best->get_move()) << ",";
+      tracefile << best->get_visits() << ",,"; // omit lcb when exploring, it's not used
+      tracefile << best_value << "," << fpu_eval << "," << best_winrate << ",";
+      tracefile << best_puct << ",";
+      tracefile << best->get_policy() << ",";
+      if (second_best != nullptr) {
+        tracefile << currstate.move_to_text(second_best->get_move()) << ",";
+        tracefile << second_best->get_visits() << ",";
+        tracefile << second_best_value << "," << second_best_winrate << ",";
+        tracefile << second_best_puct << ",";
+        tracefile << second_best->get_policy() << "\n";
+      } else {
+        tracefile << ",,,,,,\n";
+      }
+    }
+
     return best->get();
 }
 
