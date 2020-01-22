@@ -1,16 +1,25 @@
 Forked so I can make some customisations and play with the search algorithm:
 
 * "minvisits" mode: visit every legal move a minimum number of times before going to the normal monte carlo tree search
+* winrate fuzzing: a different way to broaden the search.  Essentially, lie to LZ about how good the second choice move is, so that LZ won't explore the first choice exclusively
 * tracing mode: output a CSV file with stats for each visit
 
 Access these modes via gtp commands.  For example:
 
 * lz-setoption name minvisits value 10
 * lz-setoption name tracefile value myoutput.csv
+* lz-setoption name fuzz_bonus value 0.05
+* lz-setoption name fuzz_ratio value 10
+
+The last two lines will tell LZ, approximately, to give equal search time to the 10 best moves provided they're all within 5% of the top winrate (approximate because winrates move around as LZ explores, so you may see more than the top 10 getting some playouts).
 
 For tracing, I suggest you stick with small numbers of playouts, otherwise the output CSVs can get massive.
 
 Use the script tracefile_to_sgf.py to convert CSV output to SGF.
+
+[Worked examples of tracing](https://lifein19x19.com/viewtopic.php?f=18&t=17181)
+
+[Examples of widened searches with minvisits and with winrate fuzzing](https://lifein19x19.com/viewtopic.php?f=18&t=16967)
 
 ---
 
