@@ -145,6 +145,12 @@ static void parse_commandline(int argc, char *argv[]) {
                      "Weaken engine by limiting the number of visits.")
         ("minvisits", po::value<int>(),
                      "Broaden search by forcing each legal move to receive at least minvisits playouts.\nIntended for use in analysis only, not for game play or training.")
+        ("fuzzbonus", po::value<float>(),
+                     "Broaden search by fuzzing the winrate values: add a bonus to underexplored nodes at top level of tree.\nIntended for use in analysis only, not for game play or training.")
+        ("fuzzratio", po::value<float>(),
+                     "Broaden search by fuzzing the winrate values: apply the bonus to nodes whose ratio of total visits is below the fuzzratio.\nIntended for use in analysis only, not for game play or training.")
+        ("puct", po::value<float>(),
+                     "Broaden search by changing the p_uct exploration parameter.\nIntended for use in analysis only, not for game play or training.")
         ("lagbuffer,b", po::value<int>()->default_value(cfg_lagbuffer_cs),
                         "Safety margin for time usage in centiseconds.")
         ("resignpct,r", po::value<int>()->default_value(cfg_resignpct),
@@ -412,6 +418,18 @@ static void parse_commandline(int argc, char *argv[]) {
 
     if (vm.count("minvisits")) {
         cfg_min_visits = vm["minvisits"].as<int>();
+    }
+
+    if (vm.count("fuzzbonus")) {
+        cfg_fuzz_bonus = vm["fuzzbonus"].as<float>();
+    }
+
+    if (vm.count("fuzzratio")) {
+        cfg_fuzz_ratio = vm["fuzzratio"].as<float>();
+    }
+
+    if (vm.count("puct")) {
+        cfg_puct = vm["puct"].as<float>();
     }
 
     if (vm.count("resignpct")) {

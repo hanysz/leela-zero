@@ -48,6 +48,7 @@
 #include "GameState.h"
 #include "Network.h"
 #include "Utils.h"
+#include "Random.h"
 
 using namespace Utils;
 
@@ -350,7 +351,16 @@ UCTNode* UCTNode::uct_select_child(int color, bool is_root, GameState & currstat
         const auto psa = child.get_policy();
         const auto denom = 1.0 + child.get_visits();
         const auto puct = cfg_puct * psa * (numerator / denom);
-        const auto value = winrate + puct;
+        auto value = winrate + puct; // changed from const so we can fuzz it
+
+        // Try winrate fuzzing to broaden the seach
+        if (is_root & (child.get_visits() * cfg_fuzz_ratio < int(parentvisits))) {
+          // cast parentvisits to int because get_visits is signed and parentvisits isn't
+          // -- makes no difference to results, just to avoid a compiler warning
+          value += cfg_fuzz_bonus;
+          // previously tried using random offset,
+          //but a constant seems to work just as well!
+        }
         assert(value > std::numeric_limits<double>::lowest());
 
         if (value > best_value) {

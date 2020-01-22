@@ -836,7 +836,7 @@ int UCTSearch::think(int color, passflag_t passflag) {
     if (cfg_tracing) {
         tracefile.close();
 	myprintf("Finished tracing\n");
-	cfg_tracing = false;
+	cfg_tracing = false; // Don't trace consecutive moves into the same tracefile!
     }
 
     // Make sure to post at least once.

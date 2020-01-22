@@ -86,6 +86,8 @@ extern unsigned int cfg_batch_size;
 extern int cfg_max_playouts;
 extern int cfg_max_visits;
 extern int cfg_min_visits;
+extern float cfg_fuzz_bonus;
+extern float cfg_fuzz_ratio;
 extern bool cfg_tracing; // if true, write one line per playout to cfg_tracefilename
 extern bool cfg_long_tracing; // if true, write extra tracing output
 extern std::string cfg_tracefilename;

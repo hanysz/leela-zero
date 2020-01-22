@@ -64,6 +64,8 @@ unsigned int cfg_batch_size;
 int cfg_max_playouts;
 int cfg_max_visits;
 int cfg_min_visits;
+float cfg_fuzz_bonus;
+float cfg_fuzz_ratio;
 bool cfg_tracing;
 bool cfg_long_tracing;
 std::string cfg_tracefilename;
@@ -334,6 +336,8 @@ void GTP::setup_default_parameters() {
     cfg_max_visits = UCTSearch::UNLIMITED_PLAYOUTS;
     // This will be overwriiten in initialize() after network size is known.
     cfg_min_visits = 0;
+    cfg_fuzz_bonus = 0;
+    cfg_fuzz_ratio = 10;
     cfg_tracing = false;
     cfg_long_tracing = false;
     cfg_max_tree_size = UCTSearch::DEFAULT_MAX_MEMORY;
@@ -437,6 +441,10 @@ const std::string GTP::s_options[] = {
     "option name Lagbuffer type spin default 0 min 0 max 3000",
     "option name Resign Percentage type spin default -1 min -1 max 30",
     "option name Pondering type check default true",
+    "option name tracefile type string default unset",
+    "option name puct type float default 0.5",
+    "option name fuzz_bonus type float default 0 recommended between 0 and 1",
+    "option name fuzz_ratio type float default 10 recommended >0",
     ""
 };
 
@@ -1364,9 +1372,31 @@ void GTP::execute_setoption(UCTSearch & search,
     } else if (name == "minvisits") {
         std::istringstream valuestream(value);
         int visits;
-        valuestream >> visits;
-        cfg_min_visits = visits;
-        gtp_printf(id, "");
+        if (valuestream >> visits) {
+          cfg_min_visits = visits;
+        }
+        gtp_printf(id, "%d", cfg_min_visits);
+    } else if (name == "puct") {
+        std::istringstream valuestream(value);
+        float puct;
+        if (valuestream >> puct) {
+          cfg_puct = puct;
+        }
+        gtp_printf(id, "%1.4f", cfg_puct);
+    } else if (name == "fuzz_bonus") {
+        std::istringstream valuestream(value);
+        float fuzzb;
+        if (valuestream >> fuzzb) {
+          cfg_fuzz_bonus = fuzzb;
+        }
+        gtp_printf(id, "%1.4f", cfg_fuzz_bonus);
+    } else if (name == "fuzz_ratio") {
+        std::istringstream valuestream(value);
+        float fuzzr;
+        if (valuestream >> fuzzr) {
+          cfg_fuzz_ratio = fuzzr;
+        }
+        gtp_printf(id, "%1.4f", cfg_fuzz_ratio);
     } else if (name == "tracefile") {
         std::istringstream valuestream(value);
 	std::string tracefilename;
@@ -1375,8 +1405,8 @@ void GTP::execute_setoption(UCTSearch & search,
 	cfg_tracing = true;
 	gtp_printf(id, "");
     } else if (name == "longtrace") {
-        cfg_long_tracing = true;
-	gtp_printf(id, "");
+        cfg_long_tracing = !cfg_long_tracing;
+        gtp_printf(id, "%d", cfg_long_tracing);
     } else if (name == "playouts") {
         std::istringstream valuestream(value);
         int playouts;
